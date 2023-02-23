@@ -1,0 +1,37 @@
+version: '2.5'
+services:
+  demo-db:
+    image: mysql:8.0.26
+    container_name: mysql-demo-container
+    ports:
+      - "3306:3306"
+    restart: on-failure
+    volumes:
+    - ./src/main/resources/sql:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: fireice22072001
+      MYSQL_DATABASE: demo
+      MYSQL_USER: linh
+      MYSQL_PASSWORD: fireice22072001
+    healthcheck:
+      test: "exit 0"
+    networks:
+     -  demo-networks
+  demo-service:
+    restart: always
+    container_name: demo-container
+    image: docker-demo:1
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+    depends_on:
+      demo-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-demo-container:3306/demo?createDatabaseIfNotExist=true&autoReconnect=true&userSSL=false&useUnicode=true&characterEncoding=utf-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: fireice22072001
+    networks:
+      - demo-networks
+networks:
+  demo-networks:

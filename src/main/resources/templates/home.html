@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" th:href="@{/css/owl.theme.default.min.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <title>Sản phẩm</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+           <div class="clearfix"></div>
+           <div class="col-sm-12">
+               <form>
+                   <div class="table-responsive table-cart-content">
+                       <div class="container row my-4">
+                           <div class="col-sm-8">
+                               <input id="valueItem" type="text" placeholder="Giá" class="form-control" />
+                           </div>
+                           <div class="col-sm-4 text-center">
+                               <button type="button" onclick="createItem()" data-toggle="tooltip" title class="btn btn-primary" data-original-title="Thêm">Thêm</button>
+                           </div>
+                       </div>
+                       <table id="cartitem-table" class="table table-bordered">
+                           <thead>
+                           <tr>
+                               <td class="text-center"><strong>ID</strong></td>
+                               <td class="text-center"><strong>Giá</strong></td>
+                               <td class="text-center"><strong>Xóa</strong></td>
+                           </tr>
+                           </thead>
+                           <tbody>
+
+                           </tbody>
+                       </table>
+                   </div>
+               </form>
+           </div>
+        </div>
+    </div>
+
+        <script type = "text/javascript">
+            $(document).ready(function(){
+                loadcartitems();
+            });
+
+            function loadcartitems(){
+                $.ajax({
+                    url: '/demo-0.1/getAll',
+                    type: 'get',
+                    datatype: 'json',
+                    success: function(json){
+                        let table = '';
+                        for(let i = 0;i<json.length; i++){
+                            var html = '<tr item-id="'+json[i]['id']+'">'+
+                                '<td class="text-center">'+
+                                '<strong>'+ json[i]['id'] +'</strong>'+
+                                '</td>'+
+                                '<td class="text-center">'+json[i]['value']+'</td>'+
+                                '<td class="text-center">'+
+                                '<button type="button" onclick="deletecartitems('+json[i]['id']+')" data-toggle="tooltip" title class="btn btn-danger" data-original-title="Xóa">'+
+                                'Xóa'+
+                                '</button>'+
+                                '</td>'+
+                                '</tr>';
+                            table+=html;
+                        }
+                        $('#cartitem-table tbody').html(table);
+
+                    },
+                    error: function(){
+                        alert("Không load đơn hàng thành công !");
+                    }
+                });
+            };
+
+            function deletecartitems(id){
+                $.ajax({
+                    url: '/demo-0.1/delete/'+id,
+                    type: 'delete',
+                    dataType: 'json',
+                    success: function(json){
+                        loadcartitems();
+                    },
+                    error: function(){
+                        alert("Không xóa thành công !")
+                    }
+                });
+            };
+
+            function createItem(e){
+                const data = {};
+                data["itemValue"] = $("#valueItem").val()
+                $.ajax({
+                    url: '/demo-0.1/create',
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(json){
+                        loadcartitems();
+                    },
+                    error: function(){
+                        alert("Không xóa thành công !")
+                    }
+                });
+            };
+        </script>
+        <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+</body>
+</html>
